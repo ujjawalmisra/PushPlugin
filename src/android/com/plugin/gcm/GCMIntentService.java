@@ -9,6 +9,9 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -97,16 +100,32 @@ public class GCMIntentService extends GCMBaseIntentService {
 				defaults = Integer.parseInt(extras.getString("defaults"));
 			} catch (NumberFormatException e) {}
 		}
-		
+
+		Resources resources = context.getResources();
+		// Try to find "notification" icons in drawable resources
+		int smallIcon = resources.getIdentifier("notification", "drawable", context.getPackageName());
+		int largeIcon = smallIcon;
+		// If no "notification" icon is found, default the smallIcon to the app icon.
+		// No largeIcon will be there in this case.
+		if (0 == smallIcon) {
+			smallIcon = context.getApplicationInfo().icon;
+		}
 		NotificationCompat.Builder mBuilder =
 			new NotificationCompat.Builder(context)
 				.setDefaults(defaults)
-				.setSmallIcon(context.getApplicationInfo().icon)
+				.setSmallIcon(smallIcon)
 				.setWhen(System.currentTimeMillis())
 				.setContentTitle(extras.getString("title"))
 				.setTicker(extras.getString("title"))
 				.setContentIntent(contentIntent)
 				.setAutoCancel(true);
+
+		if (0 != largeIcon) {
+			try {
+				Bitmap bmpLargeIcon = (((BitmapDrawable)resources.getDrawable(largeIcon)).getBitmap());
+				mBuilder.setLargeIcon(Bitmap.createBitmap(bmpLargeIcon));
+			} catch (Exception e) {}
+		}
 
 		String message = extras.getString("message");
 		if (message != null) {
