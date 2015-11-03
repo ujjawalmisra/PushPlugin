@@ -105,14 +105,13 @@ public class GCMIntentService extends GCMBaseIntentService {
 		// Try to find "notification" icons in drawable resources
 		int smallIcon = resources.getIdentifier("notification", "drawable", context.getPackageName());
 		int largeIcon = resources.getIdentifier("notification_large", "drawable", context.getPackageName());
-		// If no "notification_large" icon is found, default the largeIcon to the smallIcon.
-		if (0 == largeIcon) {
-			largeIcon = smallIcon;
-		}
 		// If no "notification" icon is found, default the smallIcon to the app icon.
-		// No largeIcon will be there in this case.
 		if (0 == smallIcon) {
 			smallIcon = context.getApplicationInfo().icon;
+		}
+		// If no "notification_large" icon is found, default the largeIcon to smallIcon, if its there.
+		if (0 == largeIcon && 0 != smallIcon) {
+			largeIcon = smallIcon;
 		}
 		NotificationCompat.Builder mBuilder =
 			new NotificationCompat.Builder(context)
@@ -127,10 +126,7 @@ public class GCMIntentService extends GCMBaseIntentService {
 		if (0 != largeIcon) {
 			try {
 				Bitmap bmpLargeIcon = (((BitmapDrawable)resources.getDrawable(largeIcon)).getBitmap());
-				int height = (int) resources.getDimension(android.R.dimen.notification_large_icon_height);
-				int width = (int) resources.getDimension(android.R.dimen.notification_large_icon_width);
-				bmpLargeIcon = Bitmap.createScaledBitmap(bmpLargeIcon, width, height, false);
-				mBuilder.setLargeIcon(bmpLargeIcon);
+				mBuilder.setLargeIcon(Bitmap.createBitmap(bmpLargeIcon));
 			} catch (Exception e) {}
 		}
 
