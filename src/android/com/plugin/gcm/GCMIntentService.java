@@ -104,11 +104,14 @@ public class GCMIntentService extends GCMBaseIntentService {
 		Resources resources = context.getResources();
 		// Try to find "notification" icons in drawable resources
 		int smallIcon = resources.getIdentifier("notification", "drawable", context.getPackageName());
-		int largeIcon = smallIcon;
+		int largeIcon = resources.getIdentifier("notification_large", "drawable", context.getPackageName());
 		// If no "notification" icon is found, default the smallIcon to the app icon.
-		// No largeIcon will be there in this case.
 		if (0 == smallIcon) {
 			smallIcon = context.getApplicationInfo().icon;
+		}
+		// If no "notification_large" icon is found, default the largeIcon to smallIcon, if its there.
+		if (0 == largeIcon && 0 != smallIcon) {
+			largeIcon = smallIcon;
 		}
 		NotificationCompat.Builder mBuilder =
 			new NotificationCompat.Builder(context)
